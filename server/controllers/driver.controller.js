@@ -58,3 +58,7 @@ export const loginDriver = async(req,res,next)=>{
 export const getProfile = async(req,res,next)=>{
     res.status(201).json(req.user)
 }
+export const logoutDriver = async(req,res,next)=>{
+    res.clearCookie('token');
+    res.status(200).json({message:'Logout Successfully'});
+}
