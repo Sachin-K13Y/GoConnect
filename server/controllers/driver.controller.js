@@ -34,3 +34,27 @@ export const registerDriver = async(req,res,next)=>{
     );
     res.status(200).json({message:"Driver Registered",token,driver})
 }
+export const loginDriver = async(req,res,next)=>{
+    const{email,password} = req.body;
+
+    const user = await Driver.findOne({email});
+
+    if(!user){
+        return res.status(401).json({message:'Invalid email or Password'});
+    }
+    const isMatch = bcrypt.compare(password,user.password)
+    if(!isMatch){
+        return res.status(401).json({message:'Invalid email or password'});
+    }
+
+    const token = jwt.sign(
+        {id:user._id},
+        process.env.JWT_SECRET,
+        {expiresIn:'24h'}
+    )
+    res.cookie('token',token);
+    return res.status(200).json({message:"User login Success",token,user});
+}
+export const getProfile = async(req,res,next)=>{
+    res.status(201).json(req.user)
+}
