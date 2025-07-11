@@ -64,7 +64,11 @@ export const loginUser = async(req,res,next)=>{
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
-
+        res.cookie('token',token);
     res.status(200).json({"message":"User Login Successfully",token,user});
     
+}
+
+export const getUserProfile = async(req,res,next)=>{
+    res.status(200).json(req.user);
 }
