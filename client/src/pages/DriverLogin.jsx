@@ -1,89 +1,88 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { DriverDataContext } from '../context/DriverContext'
 
-const DriverLogin = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [captainData, setCaptainData] = useState('')
 
-  const submitHandler = (e) => {
+const Driverlogin = () => {
+
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+
+  const { driver, setDriver } = React.useContext(DriverDataContext)
+  const navigate = useNavigate()
+
+
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setCaptainData({
-      email,
-      password,
-    })
+    const driver = {
+      email: email,
+      password
+    }
+
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/drivers/login`, driver)
+    console.log(response);
+    if (response.status === 200) {
+      const data = response.data
+
+      setDriver(data.driver)
+      localStorage.setItem('token', data.token)
+      navigate('/driver-home')
+
+    }
+
     setEmail('')
     setPassword('')
   }
-
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-white px-6 py-12">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex justify-center mb-6">
-          <img
-            className="w-24 h-24"
-            src="https://www.svgrepo.com/show/505031/uber-driver.svg"
-            alt="Driver Icon"
+    <div className='p-7 h-screen flex flex-col justify-between'>
+      <div>
+        <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
+
+        <form onSubmit={(e) => {
+          submitHandler(e)
+        }}>
+          <h3 className='text-lg font-medium mb-2'>What's your email</h3>
+          <input
+            required
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value)
+            }}
+            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
+            type="email"
+            placeholder='email@example.com'
           />
-        </div>
 
-        <form onSubmit={submitHandler} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">
-              What's your email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@example.com"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            />
-          </div>
+          <h3 className='text-lg font-medium mb-2'>Enter Password</h3>
 
-          <div>
-            <label htmlFor="password" className="block text-gray-700 font-semibold mb-2">
-              Enter Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="password"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            />
-          </div>
+          <input
+            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value)
+            }}
+            required type="password"
+            placeholder='password'
+          />
 
           <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
-          >
-            Login
-          </button>
+            className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
+          >Login</button>
+
         </form>
-
-        <p className="mt-6 text-center text-gray-600">
-          Join a fleet?{' '}
-          <Link to="/captain-signup" className="text-blue-600 hover:underline font-medium">
-            Register as a Captain
-          </Link>
-        </p>
+        <p className='text-center'>Join a fleet? <Link to='/driver-signup' className='text-blue-600'>Register as a Driver</Link></p>
       </div>
-
-      <div className="w-full max-w-md mt-8">
+      <div>
         <Link
-          to="/login"
-          className="block text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition"
-        >
-          Sign in as User
-        </Link>
+          to='/login'
+          className='bg-[#d5622d] flex items-center justify-center text-white font-semibold mb-5 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
+        >Sign in as User</Link>
       </div>
     </div>
   )
 }
 
-export default DriverLogin
+export default Driverlogin
