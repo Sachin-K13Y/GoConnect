@@ -1,44 +1,15 @@
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Start = () => {
   return (
-    <div className="relative h-screen w-full">
-      {/* Background Image with overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80')",
-        }}
-      >
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col h-full justify-between px-8 py-10 max-w-md mx-auto">
-        {/* Logo */}
-        <img
-          className="w-20 mb-6"
-          src="https://cdn-icons-png.flaticon.com/512/684/684908.png" // A simple car icon for goConnect
-          alt="goConnect Logo"
-        />
-
-        {/* Bottom card */}
-        <div className="bg-white bg-opacity-90 rounded-3xl shadow-xl p-8 backdrop-blur-sm">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
-            Welcome to <span className="text-green-600">goConnect</span>
-          </h1>
-          <p className="text-gray-700 mb-8">
-            Your reliable ride-sharing app for NIT Bihta and nearby areas.
-          </p>
-
-          <Link
-            to="/login"
-            className="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition"
-          >
-            Get Started
-          </Link>
+    <div>
+      <div className='bg-cover bg-center bg-[url(https://images.unsplash.com/photo-1619059558110-c45be64b73ae?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] h-screen pt-8 flex justify-between flex-col w-full'>
+        <img className='w-16 ml-8' src="https://cdn-assets-eu.frontify.com/s3/frontify-enterprise-files-eu/eyJwYXRoIjoid2VhcmVcL2ZpbGVcLzhGbTh4cU5SZGZUVjUxYVh3bnEyLnN2ZyJ9:weare:F1cOF9Bps96cMy7r9Y2d7affBYsDeiDoIHfqZrbcxAw?width=1200&height=417" alt="" />
+        <div className='bg-white pb-8 py-4 px-4'>
+          <h2 className='text-[30px] font-semibold'>Get Started with Uber</h2>
+          <Link to='/login' className='flex items-center justify-center w-full bg-black text-white py-3 rounded-lg mt-5'>Continue</Link>
         </div>
       </div>
     </div>
