@@ -26,7 +26,7 @@ const DriverProtectWrapper = ({
                 Authorization: `Bearer ${token}`
             }
         }).then(response => {
-            if (response.status === 201) {
+            if (response.status === 200) {
                 setDriver(response.data.driver)
                 setIsLoading(false)
             }

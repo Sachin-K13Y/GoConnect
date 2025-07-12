@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 
+import { Link } from 'react-router-dom'
+import { DriverDataContext } from '../context/DriverContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { DriverDataContext } from '../context/DriverContext'
 
 const DriverSignup = () => {
 
@@ -41,8 +41,8 @@ const DriverSignup = () => {
     }
 
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/drivers/register`, driverData)
-    console.log(response);
-    if (response.status === 200) {
+
+    if (response.status === 201) {
       const data = response.data
       setDriver(data.driver)
       localStorage.setItem('token', data.token)

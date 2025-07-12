@@ -5,8 +5,9 @@ import Driver from '../models/driver.model.js';
 
 export const authUser = async(req,res,next)=>{
     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
-
+    console.log(token)
     if(!token){
+        console.log("error Spotted")
         return res.status(401).json({message:'Unauthorized'});
     }
 
@@ -19,6 +20,7 @@ export const authUser = async(req,res,next)=>{
         return next();
     }
     catch(err){
+        console.log(err);
         return res.status(401).json({message:'Unauthorized Access'});
     }
 }
