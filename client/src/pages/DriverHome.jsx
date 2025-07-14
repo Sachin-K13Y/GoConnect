@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-
+import axios from 'axios';
 import DriverDetails from '../components/DriverDetails'
 import RidePopUp from '../components/RidePopUp'
 import { useGSAP } from '@gsap/react'
@@ -11,15 +11,47 @@ import { SocketContext } from '../context/socketContext'
 
 const DriverHome = () => {
     const {socket} = useContext(SocketContext);
-    const {driver} = useContext(DriverDataContext)
+    const {driver, setDriver} = useContext(DriverDataContext);
 
-    useEffect(()=>{
-        console.log(driver)
-        socket.emit('join',{
-            userId:driver._id,
-            userType:"driver"
-        })
-    })
+
+    useEffect(() => {
+        const fetchDriverProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (token && !driver) {
+                    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/drivers/profile`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (response.data) {
+                        setDriver(response.data);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch driver profile:", error);
+            }
+        };
+        
+        fetchDriverProfile();
+    }, []);
+
+    // Log driver data when it changes
+    useEffect(() => {
+        if (driver) {
+            console.log("Driver data:", driver);
+        }
+    }, [driver]);
+
+    // Connect to socket when driver data is available
+    useEffect(() => {
+        if (driver && driver._id && socket) {
+            socket.emit('join', {
+                userId: driver._id,
+                userType: "driver"
+            });
+        }
+    }, [driver, socket]);
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
 

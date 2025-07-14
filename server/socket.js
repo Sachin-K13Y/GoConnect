@@ -16,25 +16,61 @@ export function initializeSocket(server) {
     console.log(`Client Connected:${socket.id}`)
 
         socket.on('join',async(data)=>{
-            console.log(data);
+            console.log("Join event received:", data);
             const{userId,userType} = data;
-            if(userType=='user'){
-            const d =  await User.findByIdAndUpdate(User.Id,{
-                    socketId:socket.id
-                });
-                console.log(d);
-                
-            }
-            else if(userType=='driver'){
-                await Driver.findByIdAndUpdate(userId,{socketId:socket.id});
+            try {
+                if(userType=='user'){
+                    const time = await User.findById(userId);
+                    
+                    const user = await User.findByIdAndUpdate(userId, 
+                        { socketId: socket.id },
+                        { new: true }
+                    );
+                    console.log(user);
+                    if(user) {
+                        socketIdMap.set(userId, socket.id);
+                        console.log(`User ${userId} socket updated:`, user);
+                    }
+                }
+                else if(userType=='driver'){
+                    const driver = await Driver.findByIdAndUpdate(userId,
+                        { socketId: socket.id },
+                        { new: true }
+                    );
+                    if(driver) {
+                        socketIdMap.set(userId, socket.id);
+                        console.log(`Driver ${userId} socket updated:`, driver);
+                    }
+                }
+            } catch (error) {
+                console.error("Error updating socket id:", error);
             }
         });
-        socket.on('disconnect', () => {
-            for (const [id, sId] of socketIdMap.entries()) {
-                if (sId === socket.id) {
-                    socketIdMap.delete(id);
-                    break;
+        socket.on('disconnect', async () => {
+            try {
+                // Find the user/driver ID associated with this socket
+                let disconnectedId = null;
+                for (const [id, sId] of socketIdMap.entries()) {
+                    if (sId === socket.id) {
+                        disconnectedId = id;
+                        break;
+                    }
                 }
+
+                if (disconnectedId) {
+                    // Remove from map
+                    socketIdMap.delete(disconnectedId);
+                    
+                    // Update database
+                    await Promise.all([
+                        User.findByIdAndUpdate(disconnectedId, { socketId: null }),
+                        Driver.findByIdAndUpdate(disconnectedId, { socketId: null })
+                    ]);
+                    
+                    console.log(`Socket ${socket.id} disconnected, cleaned up for ID: ${disconnectedId}`);
+                }
+            } catch (error) {
+                console.error("Error handling disconnect:", error);
             }
         });
     });

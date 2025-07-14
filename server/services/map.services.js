@@ -1,4 +1,5 @@
 import axios from "axios";
+import Driver from "../models/driver.model.js";
 
 export const getLocationCoordinate = async (address) => {
     const apikey = process.env.GOOGLE_MAP_API;
@@ -77,3 +78,14 @@ export const getSuggestionFromAPI = async (address) => {
         throw new Error(error.message);
     }
 };
+
+export const getDriversInTheRadius = async(ltd,lng,radius)=>{
+    const drivers = await Driver.fid({
+        location:{
+            $geoWithin:{
+                $centreSphere:[[ltd,lng],radius/3963.2]
+            }
+        }
+    })
+    return drivers;
+}
