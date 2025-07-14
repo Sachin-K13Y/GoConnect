@@ -4,8 +4,8 @@ const ConfirmRide = (props) => {
     // Destructure props for clarity
     const { pickup, destination, vehicleType, setVehiclePanel, createRide, setConfirmRidePanel, setVehicleFound } = props;
     const fare = props.fare?.fare||{}
-    console.log(vehicleType)
-    console.log(fare[vehicleType]);
+
+
     return (
         <div>
             <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {

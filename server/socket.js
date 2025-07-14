@@ -16,11 +16,14 @@ export function initializeSocket(server) {
     console.log(`Client Connected:${socket.id}`)
 
         socket.on('join',async(data)=>{
+            console.log(data);
             const{userId,userType} = data;
             if(userType=='user'){
-                await User.findByIdAndUpdate(user.Id,{
+            const d =  await User.findByIdAndUpdate(User.Id,{
                     socketId:socket.id
                 });
+                console.log(d);
+                
             }
             else if(userType=='driver'){
                 await Driver.findByIdAndUpdate(userId,{socketId:socket.id});

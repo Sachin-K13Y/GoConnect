@@ -16,13 +16,12 @@ const UserLogin = () => {
       password:password
     }
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`,userData)
-    console.log(userData)
-    console.log(response);
-    if(response.status==200){
 
+    if(response.status==200){
       const data = response.data;
+      console.log(data);
       localStorage.setItem('token',data.token)
-      setUser(data.user);
+      setUser(data.user); // This will now also persist user in localStorage
       navigate('/home');
     }
     setEmail('')

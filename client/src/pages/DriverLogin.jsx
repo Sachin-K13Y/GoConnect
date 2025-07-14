@@ -23,10 +23,10 @@ const Driverlogin = () => {
     }
 
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/drivers/login`, driverData)
-    console.log(response);
+
     if (response.status === 200) {
       const data = response.data
-
+      console.log(data.user);
       setDriver(data.user)
       
       localStorage.setItem('token', data.token)

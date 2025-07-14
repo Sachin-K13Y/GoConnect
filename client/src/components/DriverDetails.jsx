@@ -21,13 +21,13 @@ const DriverDetails = () => {
         fetchDriver();
     }, []);
 
-    console.log(driver);
     return (
         <div>
             <div className='flex items-center justify-between'>
                 <div className='flex items-center justify-start gap-3'>
                     <img className='h-10 w-10 rounded-full object-cover' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdlMd7stpWUCmjpfRjUsQ72xSWikidbgaI1w&s" alt="" />
-                    <h4 className='text-lg font-medium'>{driver.fullname.firstname + " "+ driver.fullname.lastname} </h4>
+                    <h4 className='text-lg font-medium'>{`${driver?.fullname?.firstname ?? ""} ${driver?.fullname?.lastname ?? ""}`}
+</h4>
                 </div>
                 <div>
                     <h4 className='text-xl font-semibold'>₹{driver ? driver.earnings ?? '0.00' : '0.00'}</h4>

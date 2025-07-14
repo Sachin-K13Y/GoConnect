@@ -25,7 +25,7 @@ export const registerDriver = async(req,res,next)=>{
             vehicleType
         }
     });
-    console.log(driver);
+
     await driver.save();
     const token = jwt.sign(
         {id:driver._id},

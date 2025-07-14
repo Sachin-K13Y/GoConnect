@@ -5,7 +5,7 @@ import Driver from '../models/driver.model.js';
 
 export const authUser = async(req,res,next)=>{
     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
-    console.log(token)
+
     if(!token){
         console.log("error Spotted")
         return res.status(401).json({message:'Unauthorized'});
@@ -16,7 +16,7 @@ export const authUser = async(req,res,next)=>{
         const user = await User.findById(decoded.id);
 
         req.user = user;
-        console.log(user);
+
         return next();
     }
     catch(err){
@@ -36,7 +36,7 @@ export const authDriver = async(req,res,next)=>{
         const user = await Driver.findById(decoded.id);
 
         req.user = user;
-        console.log(user);
+        
         return next();
     }
     catch(err){

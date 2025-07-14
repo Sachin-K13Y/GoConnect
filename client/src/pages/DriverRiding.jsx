@@ -32,7 +32,7 @@ const DriverProtectWrapper = ({
             }
         })
             .catch(err => {
-                console.log(children)
+                
                 localStorage.removeItem('token')
                 navigate('/driver-login')
             })

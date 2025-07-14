@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import DriverDetails from '../components/DriverDetails'
@@ -6,9 +6,20 @@ import RidePopUp from '../components/RidePopUp'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp'
+import { DriverDataContext } from '../context/DriverContext'
+import { SocketContext } from '../context/socketContext'
 
 const DriverHome = () => {
+    const {socket} = useContext(SocketContext);
+    const {driver} = useContext(DriverDataContext)
 
+    useEffect(()=>{
+        console.log(driver)
+        socket.emit('join',{
+            userId:driver._id,
+            userType:"driver"
+        })
+    })
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
 
