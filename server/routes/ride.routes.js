@@ -3,6 +3,6 @@ import { createRideController, getFareController } from '../controllers/ride.con
 import { authUser } from '../middleware/auth.middleware.js';
 
 const rideRoutes = express.Router();
-rideRoutes.post('/get-fare',authUser,getFareController);
+rideRoutes.get('/get-fare',authUser,getFareController);
 rideRoutes.post('/create',authUser,createRideController);
 export default rideRoutes;

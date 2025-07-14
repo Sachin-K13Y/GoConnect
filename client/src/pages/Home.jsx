@@ -27,21 +27,22 @@ const Home = () => {
     const [waitingForDriver, setWaitingForDriver] = useState(false)
     const [fare,setFare] = useState(null);
 
-    const findTrip = async()=>{
+    const findTrip = async () => {
         setVehiclePanel(true)
         setPanelOpen(false)
-        console.log(localStorage.getItem('token'));
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/get-fare`, {
-            params: { pickup, destination },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-
-        console.log(response.data);
-        setFare(response.data)
-
-
+        console.log(pickup);
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/ride/get-fare`, {
+                params: { pickup, destination },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            console.log(response.data);
+            setFare(response.data);
+        } catch (err) {
+            setFare(null);
+        }
     }
     // Fetch suggestions from backend
     const fetchSuggestions = async (input) => {
@@ -219,7 +220,7 @@ const Home = () => {
                 </div>
             </div>
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} fare={fare} />
             </div>
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
