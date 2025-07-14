@@ -26,7 +26,19 @@ const Home = () => {
     const [vehicleFound, setVehicleFound] = useState(false)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
     const [fare,setFare] = useState(null);
-
+    const [vehicleType,setVehicleType] = useState(null);
+    const createRide=async()=>{
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/create`,{
+            pickup,
+            destination,
+            vehicleType
+        },{
+            headers:{
+                Authorization:`Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        console.log(response.data);
+    }
     const findTrip = async () => {
         setVehiclePanel(true)
         setPanelOpen(false)
@@ -220,10 +232,15 @@ const Home = () => {
                 </div>
             </div>
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} fare={fare} />
+                <VehiclePanel selectVehicle = {setVehicleType} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} fare={fare} />
             </div>
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+                <ConfirmRide createRide={createRide}
+                pickup={pickup}
+                destination = {destination}
+                fare={fare}
+                vehicleType = {vehicleType}
+                setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
             </div>
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <LookingForDriver setVehicleFound={setVehicleFound} />
