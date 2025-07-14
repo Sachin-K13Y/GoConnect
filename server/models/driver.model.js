@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const driverSchema = new mongoose.Schema({
     fullname:{
-        fistname:{
+        firstname:{
             type:String,
             requried:true,
         },
