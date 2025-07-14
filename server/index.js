@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import driverRoutes from './routes/driver.routes.js';
 import mapRoutes from './routes/map.routes.js';
 import rideRoutes from './routes/ride.routes.js';
+import { initializeSocket } from './socket.js';
+import http from 'http';
 dotenv.config();
 const app = express();
 app.use(cors())
@@ -24,6 +26,9 @@ app.use('/users',userRoute)
 app.use('/drivers',driverRoutes);
 app.use('/map',mapRoutes);
 app.use('/ride',rideRoutes);
-app.listen(3000,()=>{
+
+const server = http.createServer(app);
+initializeSocket(server);
+server.listen(port,()=>{
     console.log(`Server is Running on ${port}`);
-})
+});
