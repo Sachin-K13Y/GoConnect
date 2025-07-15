@@ -26,7 +26,14 @@ const response = await axios.get(
             props.setConfirmRidePopupPanel(false)
             props.setRidePopupPanel(false)
             
-            navigate('/driver-riding')
+            navigate('/driver-riding', { 
+                state: { 
+                    ride: { 
+                        ...props.ride, 
+                        ...response.data 
+                    } 
+                }
+            })
         }
     }
     return (

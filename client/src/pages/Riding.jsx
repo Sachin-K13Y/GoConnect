@@ -1,7 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const Riding = () => {
+    const location = useLocation();
+    const rideData = location.state?.ride;
     return (
         <div className='h-screen'>
             <Link to='/home' className='fixed right-2 top-2 h-10 w-10 bg-white flex items-center justify-center rounded-full'>
@@ -15,33 +17,44 @@ const Riding = () => {
                 <div className='flex items-center justify-between'>
                     <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
                     <div className='text-right'>
-                        <h2 className='text-lg font-medium'>Sarthak</h2>
-                        <h4 className='text-xl font-semibold -mt-1 -mb-1'>MP04 AB 1234</h4>
-                        <p className='text-sm text-gray-600'>Maruti Suzuki Alto</p>
-
+                        <h2 className='text-lg font-medium'>{rideData?.driver?.fullname?.firstname} {rideData?.driver?.fullname?.lastname}</h2>
+                        <h4 className='text-xl font-semibold -mt-1 -mb-1'>{rideData?.driver?.vehicle?.plate || 'Loading...'}</h4>
+                        <p className='text-sm text-gray-600'>{rideData?.driver?.vehicle?.vehicleType || 'Vehicle'}</p>
                     </div>
                 </div>
 
                 <div className='flex gap-2 justify-between flex-col items-center'>
                     <div className='w-full mt-5'>
+                        <div className='flex items-center gap-5 p-3 border-b-2'>
+                            <i className="ri-map-pin-user-fill text-blue-500"></i>
+                            <div>
+                                <h3 className='text-lg font-medium'>Pickup Location</h3>
+                                <p className='text-sm -mt-1 text-gray-600'>{rideData?.pickup || 'Loading...'}</p>
+                            </div>
+                        </div>
 
                         <div className='flex items-center gap-5 p-3 border-b-2'>
-                            <i className="text-lg ri-map-pin-2-fill"></i>
+                            <i className="text-lg ri-map-pin-2-fill text-red-500"></i>
                             <div>
-                                <h3 className='text-lg font-medium'>562/11-A</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>Kankariya Talab, Bhopal</p>
+                                <h3 className='text-lg font-medium'>Destination</h3>
+                                <p className='text-sm -mt-1 text-gray-600'>{rideData?.destination || 'Loading...'}</p>
                             </div>
                         </div>
                         <div className='flex items-center gap-5 p-3'>
-                            <i className="ri-currency-line"></i>
+                            <i className="ri-currency-line text-green-500"></i>
                             <div>
-                                <h3 className='text-lg font-medium'>₹193.20 </h3>
-                                <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                                <h3 className='text-lg font-medium'>₹{rideData?.fare || '0'}</h3>
+                                <p className='text-sm -mt-1 text-gray-600'>Total Fare</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <button className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Make a Payment</button>
+                <div className='w-full mt-5'>
+                    <p className='text-center text-sm text-gray-600 mb-2'>Ride ID: {rideData?._id || 'Loading...'}</p>
+                    <button className='w-full bg-green-600 text-white font-semibold p-2 rounded-lg'>
+                        Make a Payment
+                    </button>
+                </div>
             </div>
         </div>
     )
