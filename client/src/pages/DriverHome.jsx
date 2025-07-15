@@ -50,8 +50,39 @@ const DriverHome = () => {
                 userId: driver._id,
                 userType: "driver"
             });
+
         }
-    }, [driver, socket]);
+        let intervalId;
+        if (driver && driver._id && socket && navigator.geolocation) {
+            intervalId = setInterval(() => {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log({
+    userId: driver._id,
+    location: {
+        ltd: position.coords.latitude,
+        lng: position.coords.longitude
+    }
+});
+
+                        socket.emit('update-location-driver', {
+                            userId: driver._id,
+                            location:{
+                            ltd: position.coords.latitude,
+                            lng: position.coords.longitude
+                            }
+                        });
+                    },
+                    (error) => {
+                        console.error("Geolocation error:", error);
+                    }
+                );
+            }, 10000);
+        }
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    });
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
 
