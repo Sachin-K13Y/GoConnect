@@ -10,6 +10,7 @@ import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
 import { SocketContext } from '../context/socketContext';
 import { UserDataContext } from '../context/UserContext';
+import { set } from 'mongoose';
 
 const Home = () => {
     const {socket} = useContext(SocketContext);
@@ -36,6 +37,7 @@ const Home = () => {
     const [waitingForDriver, setWaitingForDriver] = useState(false)
     const [fare,setFare] = useState(null);
     const [vehicleType,setVehicleType] = useState(null);
+    const [ride,setRide] = useState(null);
     const createRide=async()=>{
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/create`,{
             pickup,
@@ -111,8 +113,9 @@ const Home = () => {
         e.preventDefault()
     }
 
-    socket.on('ride-confirmed', (data) => {
+    socket.on('ride-confirmed', (ride) => {
         setWaitingForDriver(true);
+        setRide(ride);
     })
     useGSAP(function () {
         if (panelOpen) {
@@ -264,7 +267,11 @@ const Home = () => {
                  setVehicleFound={setVehicleFound} />
             </div>
             <div ref={waitingForDriverRef} className='fixed w-full  z-10 bottom-0  bg-white px-3 py-6 pt-12'>
-                <WaitingForDriver  waitingForDriver={waitingForDriver} />
+                <WaitingForDriver
+                ride = {ride}
+                setVehicleFound = {setVehicleFound}
+                
+                  waitingForDriver={waitingForDriver} />
             </div>
         </div>
     )

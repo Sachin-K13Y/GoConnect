@@ -68,7 +68,7 @@ export const confirmRide = async(rideId,driver)=>{
     }, { new: true });
     const ride = await Ride.findOne({
         _id:rideId
-    }).populate('user');
+    }).populate('user').populate('driver').select('+otp');
 
     if(!ride){
         throw new Error('Ride not found');
