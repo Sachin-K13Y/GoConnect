@@ -1,33 +1,26 @@
 import axios from "axios";
 import Driver from "../models/driver.model.js";
 
-export const getLocationCoordinate = async (address) => {
-    const apikey = process.env.GOOGLE_MAP_API;
-    
-    let url = "";
-    if (address.lat && address.lng) {
-        url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${address.lat},${address.lng}&key=${apikey}`;
-    } else if (address.address) {
-        url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address.address)}&key=${apikey}`;
-    } else {
-        throw new Error("Invalid address object. Must contain either {lat, lng} or {address}");
-    }
+export const getLocationCoordinate = async (address) =>{
+    const apiKey = process.env.GOOGLE_MAP_API;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
     try {
         const response = await axios.get(url);
-        if (response.data.status === "OK") {
-            const location = response.data.results[0].geometry.location;
+        if (response.data.status === 'OK') {
+            const location = response.data.results[ 0 ].geometry.location;
             return {
-                lat: location.lat,
+                ltd: location.lat,
                 lng: location.lng
             };
         } else {
-            throw new Error(response.data.error_message || "Google Maps API error");
+            throw new Error('Unable to fetch coordinates');
         }
     } catch (error) {
-        throw new Error(error.message);
+        console.error(error);
+        throw error;
     }
-};
+}
 
 export const getDistanceTimeFromAPI = async(origin,destination)=>{
     if(!origin || !destination){
@@ -80,10 +73,11 @@ export const getSuggestionFromAPI = async (address) => {
 };
 
 export const getDriversInTheRadius = async(ltd,lng,radius)=>{
-    const drivers = await Driver.fid({
+    //Radius in km
+    const drivers = await Driver.find({
         location:{
             $geoWithin:{
-                $centreSphere:[[ltd,lng],radius/3963.2]
+                $centerSphere:[[ltd,lng],radius/6371]
             }
         }
     })

@@ -36,12 +36,7 @@ const DriverHome = () => {
         fetchDriverProfile();
     }, []);
 
-    // Log driver data when it changes
-    useEffect(() => {
-        if (driver) {
-            console.log("Driver data:", driver);
-        }
-    }, [driver]);
+
 
     // Connect to socket when driver data is available
     useEffect(() => {
@@ -57,13 +52,7 @@ const DriverHome = () => {
             intervalId = setInterval(() => {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        console.log({
-    userId: driver._id,
-    location: {
-        ltd: position.coords.latitude,
-        lng: position.coords.longitude
-    }
-});
+
 
                         socket.emit('update-location-driver', {
                             userId: driver._id,
@@ -89,7 +78,9 @@ const DriverHome = () => {
     const ridePopupPanelRef = useRef(null)
     const confirmRidePopupPanelRef = useRef(null)
 
-
+    socket.on('new-ride',(data)=>{
+        console.log(data);
+    })
     useGSAP(function () {
         if (ridePopupPanel) {
             gsap.to(ridePopupPanelRef.current, {
