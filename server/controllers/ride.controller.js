@@ -60,3 +60,31 @@ export const confirmRideController = async(req,res)=>{
         return res.status(500).json({message:error.message});
     }
 }
+
+export const startRide = async(req,res)=>{
+    const {rideId,otp} = req.query;
+    if(!rideId){
+        return res.status(400).json({message:'Ride ID is required'});
+    }
+    try {
+        const ride = await Ride.findById(rideId).populate('user').populate('driver');
+        if(!ride){
+            return res.status(404).json({message:'Ride not found'});
+        }
+        if(ride.status !== 'accepted'){
+            return res.status(400).json({message:'Ride is not accepted yet'});
+        }
+        ride.status = 'ongoing';
+        await ride.save();
+        
+        sendMessageToSocketId(ride.user.socketId,{
+            event:'ride-started',
+            data: ride
+        });
+        
+        return res.status(200).json(ride);
+    } catch (error) {
+        console.error("Error starting ride:", error);
+        return res.status(500).json({message:error.message});
+    }
+}

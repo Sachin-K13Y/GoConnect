@@ -11,6 +11,7 @@ import WaitingForDriver from '../components/WaitingForDriver';
 import { SocketContext } from '../context/socketContext';
 import { UserDataContext } from '../context/UserContext';
 import { set } from 'mongoose';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const {socket} = useContext(SocketContext);
@@ -112,10 +113,14 @@ const Home = () => {
     const submitHandler = (e) => {
         e.preventDefault()
     }
-
+    const navigate = useNavigate();
     socket.on('ride-confirmed', (ride) => {
         setWaitingForDriver(true);
         setRide(ride);
+    })
+    socket.on('ride-started',(ride)=>{
+        setWaitingForDriver(false);
+        navigate('/riding')
     })
     useGSAP(function () {
         if (panelOpen) {
