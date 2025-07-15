@@ -49,6 +49,7 @@ export const createRide =async(user,pickup,destination,vehicleType)=>{
         otp:getOtp(6)
 
     })
+    await ride.save();
     return ride;
 }
 
