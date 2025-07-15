@@ -1,6 +1,7 @@
 import Ride from "../models/ride.model.js";
 import crypto from "crypto"
 import { getDistanceTimeFromAPI} from "../services/map.services.js";
+import e from "cors";
 
 export const getFare = async (pickup, destination) => {
     if (!pickup || !destination) {
@@ -56,4 +57,22 @@ export const createRide =async(user,pickup,destination,vehicleType)=>{
 export const getOtp = (num)=>{
     const otp = crypto.randomInt(Math.pow(10,num-1),Math.pow(10,num)).toString();
     return otp;
+}
+
+export const confirmRide = async(rideId,driver)=>{
+    if(!rideId){
+        throw new Error('Ride ID is required');
+    }
+    await Ride.findByIdAndUpdate(rideId, { status: 'accepted',
+        driver:driver._id,
+    }, { new: true });
+    const ride = await Ride.findOne({
+        _id:rideId
+    }).populate('user');
+
+    if(!ride){
+        throw new Error('Ride not found');
+    }
+
+    return ride;
 }

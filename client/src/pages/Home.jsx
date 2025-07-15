@@ -14,7 +14,7 @@ import { UserDataContext } from '../context/UserContext';
 const Home = () => {
     const {socket} = useContext(SocketContext);
     const {user} = useContext(UserDataContext);
-
+    const [passenger, setPassenger] = useState(user);
     useEffect(()=>{
         console.log(user)
         socket.emit("join",{userType:"user",userId:user._id},[user]);
@@ -111,6 +111,9 @@ const Home = () => {
         e.preventDefault()
     }
 
+    socket.on('ride-confirmed', (data) => {
+        setWaitingForDriver(true);
+    })
     useGSAP(function () {
         if (panelOpen) {
             gsap.to(panelRef.current, {
@@ -249,6 +252,7 @@ const Home = () => {
                 destination = {destination}
                 fare={fare}
                 vehicleType = {vehicleType}
+                passenger = {passenger}
                 setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
             </div>
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>

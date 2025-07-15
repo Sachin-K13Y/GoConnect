@@ -1,6 +1,6 @@
 import Ride from "../models/ride.model.js";
 import { getDriversInTheRadius, getLocationCoordinate } from "../services/map.services.js";
-import { createRide, getFare } from "../services/ride.service.js";
+import { confirmRide, createRide, getFare } from "../services/ride.service.js";
 import { sendMessageToSocketId } from "../socket.js";
 
 export const createRideController = async(req,res)=>{
@@ -40,5 +40,23 @@ export const getFareController = async(req,res)=>{
     } catch (error) {
         console.log(error)
         return res.status(500).json({message:error.message})
+    }
+}
+
+export const confirmRideController = async(req,res)=>{
+    const {rideId} = req.body;
+    console.log(req.body);
+    try {
+        const ride = await confirmRide(rideId,req.user._id)
+
+        sendMessageToSocketId(ride.user.socketId,{
+            event:'ride-confirmed',
+            data: ride
+        });
+        console.log(ride);
+        return res.status(200).json(ride);
+    } catch (error) {
+        console.error("Error confirming ride:", error);
+        return res.status(500).json({message:error.message});
     }
 }
