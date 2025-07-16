@@ -7,4 +7,5 @@ driverRoutes.post('/register',registerDriver)
 driverRoutes.post('/login',loginDriver)
 driverRoutes.get('/profile',authDriver,getProfile)
 driverRoutes.get('/logout',logoutDriver)
+
 export default driverRoutes;

@@ -88,3 +88,30 @@ export const startRide = async(req,res)=>{
         return res.status(500).json({message:error.message});
     }
 }
+export const endRide = async(req,res)=>{
+    const {rideId} = req.body;
+    if(!rideId){
+        return res.status(400).json({message:'Ride ID is required'});
+    }
+    try {
+        const ride = await Ride.findById(rideId).populate('user').populate('driver');
+        if(!ride){
+            return res.status(404).json({message:'Ride not found'});
+        }
+        if(ride.status !== 'ongoing'){
+            return res.status(400).json({message:'Ride is not ongoing'});
+        }
+        ride.status = 'completed';
+        await ride.save();
+
+        sendMessageToSocketId(ride.user.socketId,{
+            event:'ride-ended',
+            data: ride
+        });
+
+        return res.status(200).json(ride);
+    } catch (error) {
+        console.error("Error ending ride:", error);
+        return res.status(500).json({message:error.message});
+    }
+}

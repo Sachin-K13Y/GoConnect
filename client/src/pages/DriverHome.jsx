@@ -8,6 +8,7 @@ import gsap from 'gsap'
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp'
 import { DriverDataContext } from '../context/DriverContext'
 import { SocketContext } from '../context/socketContext'
+import LiveTracking from './LiveTracking';
 
 const DriverHome = () => {
     const {socket} = useContext(SocketContext);
@@ -131,7 +132,7 @@ const DriverHome = () => {
                 </Link>
             </div>
             <div className='h-3/5'>
-                <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
+                <LiveTracking/>
 
             </div>
             <div className='h-2/5 p-6'>
