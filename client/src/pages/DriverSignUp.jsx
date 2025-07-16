@@ -5,7 +5,7 @@ import { DriverDataContext } from '../context/DriverContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-const DriverSignup = () => {
+const DriverSignUp = () => {
 
   const navigate = useNavigate()
 
@@ -180,4 +180,4 @@ const DriverSignup = () => {
   )
 }
 
-export default DriverSignup
+export default DriverSignUp
