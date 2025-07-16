@@ -4,7 +4,6 @@ import { Route, Routes } from 'react-router-dom'
 import Start from './pages/Start'
 import UserLogin from './pages/UserLogin'
 import UserSignup from './pages/UserSignup'
-import Driverlogin from './pages/Driverlogin'
 import DriverSignup from './pages/DriverSignup'
 import Home from './pages/Home'
 import UserProtectWrapper from './pages/UserProtectWrapper'
@@ -16,6 +15,7 @@ import Riding from './pages/Riding'
 import DriverRiding from './pages/DriverRiding'
 import 'remixicon/fonts/remixicon.css'
 
+import DriverLogin from './pages/DriverLogin'
 const App = () => {
 
   return (
@@ -27,7 +27,7 @@ const App = () => {
         <Route path='/driver-riding' element={<DriverRiding />} />
 
         <Route path='/signup' element={<UserSignup />} />
-        <Route path='/driver-login' element={<Driverlogin />} />
+        <Route path='/driver-login' element={<DriverLogin />} />
         <Route path='/driver-signup' element={<DriverSignup />} />
         <Route path='/home'
           element={

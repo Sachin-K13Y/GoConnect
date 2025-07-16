@@ -5,7 +5,7 @@ import axios from 'axios'
 import { DriverDataContext } from '../context/DriverContext'
 
 
-const Driverlogin = () => {
+export const DriverLogin = () => {
 
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
@@ -83,5 +83,3 @@ const Driverlogin = () => {
     </div>
   )
 }
-
-export default Driverlogin
