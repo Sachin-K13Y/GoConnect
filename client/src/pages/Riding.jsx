@@ -1,71 +1,103 @@
-import React, { useContext } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import React, { useContext, useEffect } from 'react';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import 'remixicon/fonts/remixicon.css';
+
 import { SocketContext } from '../context/socketContext';
 import LiveTracking from './LiveTracking';
 
 const Riding = () => {
     const location = useLocation();
-    const rideData = location.state?.ride;
-    const {socket} = useContext(SocketContext);
     const navigate = useNavigate();
+    const { socket } = useContext(SocketContext);
+    const rideData = location.state?.ride;
 
-    socket.on("ride-ended",()=>{
-        navigate('/home')
-    })
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleRideEnded = () => {
+            navigate('/home');
+        };
+
+        socket.on("ride-ended", handleRideEnded);
+
+        return () => {
+            socket.off("ride-ended", handleRideEnded);
+        };
+    }, [socket, navigate]);
+
+    const getVehicleIcon = (type) => {
+        switch (type?.toLowerCase()) {
+            case 'car':
+                return <i className="ri-taxi-line text-3xl"></i>;
+            case 'auto':
+                return <i className="ri-e-bike-2-line text-3xl"></i>;
+            case 'moto':
+                return <i className="ri-motorbike-line text-3xl"></i>;
+            default:
+                return <i className="ri-car-line text-3xl"></i>;
+        }
+    };
+
+    if (!rideData) {
+        return <Navigate to="/home" replace />;
+    }
+
     return (
-        <div className='h-screen'>
-            <Link to='/home' className='fixed right-2 top-2 h-10 w-10 bg-white flex items-center justify-center rounded-full'>
-                <i className="text-lg font-medium ri-home-5-line"></i>
-            </Link>
-            <div className='h-1/2'>
-                <LiveTracking/>
-
+        <div className='h-screen flex flex-col bg-gray-100'>
+            <div className='h-1/2 w-full'>
+                <LiveTracking />
             </div>
-            <div className='h-1/2 p-4'>
-                <div className='flex items-center justify-between'>
-                    <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
-                    <div className='text-right'>
-                        <h2 className='text-lg font-medium'>{rideData?.driver?.fullname?.firstname} {rideData?.driver?.fullname?.lastname}</h2>
-                        <h4 className='text-xl font-semibold -mt-1 -mb-1'>{rideData?.driver?.vehicle?.plate || 'Loading...'}</h4>
-                        <p className='text-sm text-gray-600'>{rideData?.driver?.vehicle?.vehicleType || 'Vehicle'}</p>
+
+            <div className='h-1/2 p-6 bg-white rounded-t-3xl shadow-inner-top flex flex-col justify-between'>
+                <div>
+                    <div className='text-center mb-4'>
+                        <h2 className='text-2xl font-bold text-gray-800'>Enjoy your ride!</h2>
+                        <p className='text-gray-500'>You are on your way to the destination.</p>
                     </div>
-                </div>
 
-                <div className='flex gap-2 justify-between flex-col items-center'>
-                    <div className='w-full mt-5'>
-                        <div className='flex items-center gap-5 p-3 border-b-2'>
-                            <i className="ri-map-pin-user-fill text-blue-500"></i>
-                            <div>
-                                <h3 className='text-lg font-medium'>Pickup Location</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>{rideData?.pickup || 'Loading...'}</p>
+                    <div className='bg-gray-50 rounded-xl p-4 mb-4'>
+                        <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-4'>
+                                <img 
+                                    className='h-14 w-14 rounded-full object-cover border-2 border-gray-200'
+                                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${rideData.driver?.fullname?.firstname} ${rideData.driver?.fullname?.lastname}`}
+                                    alt="Driver Avatar"
+                                />
+                                <div>
+                                    <h3 className='font-bold text-gray-800'>{rideData.driver?.fullname?.firstname}</h3>
+                                    <p className='text-sm text-gray-500'>{rideData.driver?.vehicle?.plate}</p>
+                                </div>
                             </div>
-                        </div>
-
-                        <div className='flex items-center gap-5 p-3 border-b-2'>
-                            <i className="text-lg ri-map-pin-2-fill text-red-500"></i>
-                            <div>
-                                <h3 className='text-lg font-medium'>Destination</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>{rideData?.destination || 'Loading...'}</p>
-                            </div>
-                        </div>
-                        <div className='flex items-center gap-5 p-3'>
-                            <i className="ri-currency-line text-green-500"></i>
-                            <div>
-                                <h3 className='text-lg font-medium'>₹{rideData?.fare || '0'}</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>Total Fare</p>
+                            <div className='text-yellow-500 bg-gray-800 p-3 rounded-lg'>
+                                {getVehicleIcon(rideData.driver?.vehicle?.vehicleType)}
                             </div>
                         </div>
                     </div>
+
+                    <div className='space-y-3 text-sm'>
+                        <div className='flex items-start gap-4 p-3'>
+                            <i className="ri-record-circle-line text-blue-500 mt-1"></i>
+                            <div>
+                                <p className='font-semibold text-gray-500'>Pickup</p>
+                                <p className='font-medium text-gray-800'>{rideData.pickup}</p>
+                            </div>
+                        </div>
+                        <div className='flex items-start gap-4 p-3'>
+                            <i className="ri-map-pin-2-line text-red-500 mt-1"></i>
+                            <div>
+                                <p className='font-semibold text-gray-500'>Destination</p>
+                                <p className='font-medium text-gray-800'>{rideData.destination}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className='w-full mt-5'>
-                    <p className='text-center text-sm text-gray-600 mb-2'>Ride ID: {rideData?._id || 'Loading...'}</p>
-                    <button className='w-full bg-green-600 text-white font-semibold p-2 rounded-lg'>
-                        Make a Payment
-                    </button>
+
+                <div className='text-center border-t pt-4'>
+                    <p className='text-sm text-gray-400'>Ride ID: {rideData._id}</p>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Riding
+export default Riding;
