@@ -1,71 +1,97 @@
-import axios from 'axios'
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import 'remixicon/fonts/remixicon.css';
 
+const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+);
 
-const FinishRide = (props) => {
+const FinishRide = ({ rideData, setFinishRidePanel }) => {
     const navigate = useNavigate();
-    console.log(props);
-    const endRide = async()=>{
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/end-ride`,{
-            rideId:props.rideData._id
-        },{
-            headers:{
-                Authorization:`Bearer ${localStorage.getItem('token')}`
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const endRide = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/end-ride`, {
+                rideId: rideData._id
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.status === 200) {
+                navigate('/driver-home');
             }
-        })
-        if(response.status===200){
-            navigate('/driver-home')
+        } catch (err) {
+            setError('Failed to end ride. Please try again.');
+            console.error("End ride error:", err);
+        } finally {
+            setLoading(false);
         }
-        console.log(response);
-    }
-  return (
-   <div>
-            <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
-                props.setFinishRidePanel(false)
-            }}><i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i></h5>
-            <h3 className='text-2xl font-semibold mb-5'>Finish this Ride</h3>
-            <div className='flex items-center justify-between p-4 border-2 border-yellow-400 rounded-lg mt-4'>
-                <div className='flex items-center gap-3 '>
-                    <img className='h-12 rounded-full object-cover w-12' src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>{props.rideData?.user?.fullname?.firstname} {props.rideData?.user?.fullname?.lastname}</h2>
-                </div>
-                <h5 className='text-lg font-semibold'>2.2 KM</h5>
+    };
+
+    return (
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-center relative mb-6">
+                <button 
+                    onClick={() => setFinishRidePanel(false)} 
+                    className="absolute left-0 p-2 rounded-full hover:bg-gray-100"
+                    aria-label="Close"
+                >
+                    <i className="ri-arrow-down-s-line text-2xl"></i>
+                </button>
+                <h3 className='text-xl font-bold text-gray-800'>Complete Ride</h3>
             </div>
-            <div className='flex gap-2 justify-between flex-col items-center'>
-                <div className='w-full mt-5'>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="ri-map-pin-user-fill"></i>
+
+            <div className='flex-grow flex flex-col items-center text-center'>
+                <img
+                    className='h-20 w-20 rounded-full object-cover border-4 border-white shadow-lg mb-4'
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${rideData?.user?.fullname?.firstname} ${rideData?.user?.fullname?.lastname}`}
+                    alt="Passenger Avatar"
+                />
+                <h2 className='text-lg font-bold'>{rideData?.user?.fullname?.firstname} {rideData?.user?.fullname?.lastname}</h2>
+                <p className="text-sm text-gray-500 mb-6">Trip Completed</p>
+
+                <div className='w-full bg-gray-50 rounded-xl p-4 space-y-3 text-left mb-6'>
+                     <div className='flex items-start gap-4'>
+                        <i className="ri-record-circle-line text-blue-500 mt-1"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.rideData?.pickup}</p>
+                            <p className='font-semibold text-gray-500 text-sm'>From</p>
+                            <p className='font-medium text-gray-800'>{rideData?.pickup}</p>
                         </div>
                     </div>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="text-lg ri-map-pin-2-fill"></i>
+                    <div className='flex items-start gap-4'>
+                        <i className="ri-map-pin-2-line text-red-500 mt-1"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.rideData?.destination}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3'>
-                        <i className="ri-currency-line"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>₹{props.rideData?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='font-semibold text-gray-500 text-sm'>To</p>
+                            <p className='font-medium text-gray-800'>{rideData?.destination}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className='mt-10 w-full'>
-                    
-                    <button onClick={endRide}className='w-full mt-5 flex  text-lg justify-center bg-green-600 text-white font-semibold p-3 rounded-lg'>Finish Ride</button>
-                    
-                    
+                <div className="w-full text-center bg-green-100 text-green-800 p-4 rounded-xl">
+                    <span className="font-semibold text-sm">COLLECT CASH</span>
+                    <p className="text-4xl font-bold">₹{rideData?.fare?.toFixed(2)}</p>
                 </div>
+            </div>
+
+            <div className='mt-6'>
+                {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+                <button
+                    onClick={endRide}
+                    disabled={loading}
+                    className='w-full bg-black text-white font-bold py-4 rounded-lg flex items-center justify-center h-14
+                               hover:bg-gray-800 active:scale-95 transition disabled:bg-gray-500'
+                >
+                    {loading ? <Spinner /> : 'Finish & Go Online'}
+                </button>
             </div>
         </div>
-  )
-}
+    );
+};
 
-export default FinishRide
+export default FinishRide;

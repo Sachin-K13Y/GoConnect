@@ -1,106 +1,105 @@
-import React, { useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import FinishRide from '../components/FinishRide'
-import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
+import React, { useRef, useState } from 'react';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import 'remixicon/fonts/remixicon.css';
+
+import FinishRide from '../components/FinishRide';
+import LiveTracking from './LiveTracking'; // Replaced placeholder with LiveTracking
+
 
 const DriverRiding = () => {
+    const [finishRidePanel, setFinishRidePanel] = useState(false);
+    const finishRidePanelRef = useRef(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const rideData = location.state?.ride;
 
-    const [ finishRidePanel, setFinishRidePanel ] = useState(false)
-    const finishRidePanelRef = useRef(null)
-    const location = useLocation()
-    const rideData = location.state?.ride
+    useGSAP(() => {
+        gsap.to(finishRidePanelRef.current, { y: finishRidePanel ? '0%' : '100%', duration: 0.5, ease: 'power3.inOut' });
+    }, [finishRidePanel]);
 
-    useGSAP(function () {
-        if (finishRidePanel) {
-            gsap.to(finishRidePanelRef.current, {
-                transform: 'translateY(0)'
-            })
-        } else {
-            gsap.to(finishRidePanelRef.current, {
-                transform: 'translateY(100%)'
-            })
-        }
-    }, [ finishRidePanel ])
-
+    if (!rideData) {
+        return <Navigate to="/driver-home" replace />;
+    }
 
     return (
-        <div className='h-screen relative'>
-
-            <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>
-                <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-                <Link to='/driver-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full'>
+        <div className='h-screen flex flex-col bg-gray-100 relative'>
+            <header className='fixed top-0 left-0 w-full bg-white shadow-md p-4 flex items-center justify-between z-20'>
+                <h1 className='text-xl font-bold text-gray-800'>goConnect Driver</h1>
+                <button 
+                    onClick={() => handleDriverLogout(navigate)} 
+                    className='h-10 w-10 bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700 flex items-center justify-center rounded-full transition-colors'
+                    aria-label="Logout"
+                >
                     <i className="text-lg font-medium ri-logout-box-r-line"></i>
-                </Link>
-            </div>
-            <div className='h-4/5'>
-                <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
-                {rideData && (
-                    <div className='absolute top-20 left-0 right-0 bg-white m-4 p-4 rounded-lg shadow-lg'>
-                        <div className='flex items-center gap-3 mb-4'>
-                            <img className='h-12 w-12 rounded-full object-cover' 
-                                 src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" 
-                                 alt="User" />
+                </button>
+            </header>
+
+            <main className='flex-grow pt-16 flex flex-col'>
+                <div className='h-3/5 w-full relative'>
+                    <LiveTracking />
+                    <div className='absolute top-4 left-4 right-4 bg-white p-4 rounded-xl shadow-lg z-10'>
+                        <div className='flex items-center gap-4 mb-4'>
+                            <img 
+                                className='h-14 w-14 rounded-full object-cover border-2 border-gray-200'
+                                src={`https://api.dicebear.com/7.x/initials/svg?seed=${rideData.user?.fullname?.firstname} ${rideData.user?.fullname?.lastname}`}
+                                alt="User Avatar" 
+                            />
                             <div>
-                                <h3 className='text-lg font-semibold'>
+                                <h3 className='text-lg font-bold text-gray-800'>
                                     {rideData.user?.fullname?.firstname} {rideData.user?.fullname?.lastname}
                                 </h3>
-                                <p className='text-sm text-gray-600'>User</p>
+                                <p className='text-sm text-gray-500'>Passenger</p>
                             </div>
                         </div>
                         
-                        <div className='space-y-3'>
-                            <div className='flex items-center gap-3'>
-                                <i className="ri-map-pin-user-fill text-blue-500"></i>
+                        <div className='space-y-3 text-sm'>
+                            <div className='flex items-start gap-3'>
+                                <i className="ri-record-circle-line text-blue-500 mt-1"></i>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Pickup</p>
-                                    <p className='font-medium'>{rideData.pickup}</p>
+                                    <p className='font-semibold text-gray-500'>Pickup</p>
+                                    <p className='font-medium text-gray-800'>{rideData.pickup}</p>
                                 </div>
                             </div>
-                            
-                            <div className='flex items-center gap-3'>
-                                <i className="ri-map-pin-2-fill text-red-500"></i>
+                            <div className='flex items-start gap-3'>
+                                <i className="ri-map-pin-2-line text-red-500 mt-1"></i>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Destination</p>
-                                    <p className='font-medium'>{rideData.destination}</p>
+                                    <p className='font-semibold text-gray-500'>Destination</p>
+                                    <p className='font-medium text-gray-800'>{rideData.destination}</p>
                                 </div>
                             </div>
-                            
-                            <div className='flex items-center gap-3'>
-                                <i className="ri-money-rupee-circle-line text-green-500"></i>
+                            <div className='flex items-start gap-3'>
+                                <i className="ri-money-dollar-circle-line text-green-500 mt-1"></i>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Fare</p>
-                                    <p className='font-medium'>₹{rideData.fare}</p>
+                                    <p className='font-semibold text-gray-500'>Fare</p>
+                                    <p className='font-bold text-lg text-gray-800'>₹{rideData.fare}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
-            <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400 pt-10'
-                onClick={() => {
-                    setFinishRidePanel(true)
-                }}
-            >
-                <h5 className='p-1 text-center w-[90%] absolute top-0'>
-                    <i className="text-3xl text-gray-800 ri-arrow-up-wide-line"></i>
-                </h5>
-                <div className='flex flex-col'>
-                    <h4 className='text-xl font-semibold'>Ride in Progress</h4>
-                    <p className='text-sm'>ID: {rideData?._id}</p>
                 </div>
-                <button className='bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>
-                    Complete Ride
-                </button>
-            </div>
-            <div ref={finishRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+
+                <div 
+                    className='h-2/5 p-6 flex flex-col items-center justify-center relative bg-black text-white cursor-pointer'
+                    onClick={() => setFinishRidePanel(true)}
+                >
+                    <div className='text-center'>
+                        <i className="ri-arrow-up-s-line text-3xl text-gray-400 absolute top-2 left-1/2 -translate-x-1/2"></i>
+                        <h4 className='text-2xl font-bold'>Ride in Progress</h4>
+                        <p className='text-gray-400'>Tap here to complete the ride</p>
+                    </div>
+                </div>
+            </main>
+
+            <div ref={finishRidePanelRef} className='fixed w-full z-30 bottom-0 translate-y-full bg-white rounded-t-3xl shadow-2xl p-6'>
                 <FinishRide
                     rideData={rideData}
-                    setFinishRidePanel={setFinishRidePanel} />
+                    setFinishRidePanel={setFinishRidePanel} 
+                />
             </div>
-
         </div>
-    )
-}
+    );
+};
 
-export default DriverRiding
+export default DriverRiding;

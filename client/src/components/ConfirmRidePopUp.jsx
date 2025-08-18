@@ -1,95 +1,127 @@
-import axios from 'axios'
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import 'remixicon/fonts/remixicon.css';
 
-const ConfirmRidePopUp = (props) => {
-    const [otp, setOtp] = useState('')
-    const navigate = useNavigate();
-    const submitHandler = async(e)=>{
-        e.preventDefault()
-
-const response = await axios.get(
-  `${import.meta.env.VITE_BASE_URL}/ride/start-ride`,
-  {
-    params: {
-      rideId: props.ride._id,
-      otp: otp
-    },
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-  }
+const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
 );
 
-        console.log(response.data);
-        if(response.status === 200){
-            props.setConfirmRidePopupPanel(false)
-            props.setRidePopupPanel(false)
-            
-            navigate('/driver-riding', { 
-                state: { 
-                    ride: { 
-                        ...props.ride, 
-                        ...response.data 
-                    } 
-                }
-            })
+const ConfirmRidePopUp = (props) => {
+    const { ride, setConfirmRidePopupPanel } = props;
+    const [otp, setOtp] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleCancel = () => {
+        setConfirmRidePopupPanel(false);
+    };
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        if (!otp || otp.length < 4) {
+            setError('Please enter a valid OTP.');
+            return;
         }
-    }
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/ride/start-ride`, {
+                params: { rideId: ride._id, otp: otp },
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+
+            if (response.status === 200) {
+                setConfirmRidePopupPanel(false);
+                navigate('/driver-riding', {
+                    state: { ride: { ...ride, ...response.data } }
+                });
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div>
-            <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
-                props.setRidePopupPanel(false)
-            }}><i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i></h5>
-            <h3 className='text-2xl font-semibold mb-5'>Confirm this ride to Start</h3>
-            <div className='flex items-center justify-between p-3 border-2 border-yellow-400 rounded-lg mt-4'>
-                <div className='flex items-center gap-3 '>
-                    <img className='h-12 rounded-full object-cover w-12' src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>{props.ride?.user?.fullname?.firstname + " " + props.ride?.user?.fullname?.lastname}</h2>
-                </div>
-                <h5 className='text-lg font-semibold'>2.2 KM</h5>
+        <div className="w-full max-w-lg mx-auto flex flex-col h-full">
+            <div className="flex items-center justify-center relative mb-6">
+                 <button onClick={handleCancel} className="absolute left-0 p-2 rounded-full hover:bg-gray-100">
+                    <i className="ri-arrow-down-s-line text-2xl"></i>
+                </button>
+                <h3 className='text-xl font-bold text-gray-800'>Start Ride</h3>
             </div>
-            <div className='flex gap-2 justify-between flex-col items-center'>
-                <div className='w-full mt-5'>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="ri-map-pin-user-fill"></i>
+
+            <div className='flex-grow flex flex-col items-center text-center'>
+                <div className="bg-gray-100 rounded-xl p-4 w-full mb-6">
+                    <div className='flex items-center gap-4'>
+                        <img 
+                            className='h-14 w-14 rounded-full object-cover border-2 border-white'
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${ride?.user?.fullname?.firstname} ${ride?.user?.fullname?.lastname}`}
+                            alt="User Avatar"
+                        />
                         <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.ride?.pickup}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="text-lg ri-map-pin-2-fill"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.ride?.destination}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3'>
-                        <i className="ri-currency-line"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>₹{props.ride?.fare} </h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <h2 className='text-lg font-bold text-left'>{ride?.user?.fullname?.firstname} {ride?.user?.fullname?.lastname}</h2>
+                            <p className="text-sm text-gray-500 text-left">Passenger</p>
                         </div>
                     </div>
                 </div>
 
-                <div className='mt-6 w-full'>
-                    <form onSubmit={submitHandler}>
-                        <input value={otp} onChange={(e)=>setOtp(e.target.value)} type="text" className='bg-[#eee] px-6 py-4 font-mono text-lg rounded-lg w-full mt-3' placeholder='Enter OTP' />
-
-                    <button className='w-full mt-5 text-lg flex justify-center bg-green-600 text-white font-semibold p-3 rounded-lg'>Confirm</button>
-                    <button onClick={() => {
-                        props.setConfirmRidePopupPanel(false)
-                        props.setRidePopupPanel(false)
-
-                    }} className='w-full mt-2 bg-red-600 text-lg text-white font-semibold p-3 rounded-lg'>Cancel</button>
-
-                    </form>
+                <div className='w-full text-left bg-gray-50 rounded-xl p-4 space-y-3 mb-6'>
+                    <div className='flex items-start gap-4'>
+                        <i className="ri-record-circle-line text-blue-500 mt-1"></i>
+                        <div>
+                            <p className='font-semibold text-gray-500 text-sm'>Pickup</p>
+                            <p className='font-medium text-gray-800'>{ride?.pickup}</p>
+                        </div>
+                    </div>
+                    <div className='flex items-start gap-4'>
+                        <i className="ri-map-pin-2-line text-red-500 mt-1"></i>
+                        <div>
+                            <p className='font-semibold text-gray-500 text-sm'>Destination</p>
+                            <p className='font-medium text-gray-800'>{ride?.destination}</p>
+                        </div>
+                    </div>
                 </div>
+
+                <form onSubmit={submitHandler} className="w-full mt-auto">
+                    <label htmlFor="otp" className="font-semibold text-gray-700 mb-2 block">Enter OTP to start the ride</label>
+                    <input 
+                        id="otp"
+                        value={otp} 
+                        onChange={(e) => setOtp(e.target.value)} 
+                        type="tel" 
+                        maxLength="6"
+                        className='bg-gray-100 px-6 py-4 font-mono text-2xl tracking-[1em] text-center rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-black' 
+                        placeholder='----'
+                        autoComplete="one-time-code"
+                    />
+
+                    {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+                    
+                    <button 
+                        type="submit"
+                        disabled={loading}
+                        className='w-full mt-6 text-lg bg-black text-white font-bold py-4 rounded-lg flex justify-center items-center h-14
+                                   hover:bg-gray-800 active:scale-95 transition disabled:bg-gray-500'
+                    >
+                        {loading ? <Spinner /> : 'Confirm & Start Ride'}
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={handleCancel} 
+                        className='w-full mt-2 text-gray-600 font-semibold py-3 rounded-lg hover:bg-gray-100'
+                    >
+                        Cancel
+                    </button>
+                </form>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ConfirmRidePopUp
+export default ConfirmRidePopUp;

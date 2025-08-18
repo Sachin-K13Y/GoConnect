@@ -1,87 +1,115 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { DriverDataContext } from '../context/DriverContext'
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { DriverDataContext } from '../context/DriverContext';
+import 'remixicon/fonts/remixicon.css';
 
+const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+);
 
-const Driverlogin = () => {
+const DriverLogin = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    
+    const { setDriver } = useContext(DriverDataContext);
+    const navigate = useNavigate();
 
-  const [ email, setEmail ] = useState('')
-  const [ password, setPassword ] = useState('')
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
 
-  const { driver, setDriver } = useContext(DriverDataContext)
-  const navigate = useNavigate()
-  
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/drivers/login`, { email, password });
 
+            if (response.status === 200) {
+                const { user, token } = response.data;
+                setDriver(user);
+                localStorage.setItem('token', token);
+                navigate('/driver-home');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const driverData = {
-      email: email,
-      password
-    }
+    return (
+        <div className='h-screen bg-gray-50 flex flex-col justify-center items-center p-4'>
+            <div className='w-full max-w-md'>
+                <div className='text-center mb-8'>
+                    <i className="ri-steering-2-fill text-5xl text-black"></i>
+                    <h1 className='text-3xl font-bold text-gray-800 mt-2'>goConnect Driver</h1>
+                    <p className='text-gray-500'>Welcome back! Please log in.</p>
+                </div>
 
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/drivers/login`, driverData)
+                <div className='bg-white p-8 rounded-2xl shadow-md'>
+                    <form onSubmit={submitHandler}>
+                        <div className='mb-5'>
+                            <label className='block text-sm font-medium text-gray-700 mb-1' htmlFor='email'>
+                                Email Address
+                            </label>
+                            <input
+                                id='email'
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className='bg-gray-100 rounded-lg px-4 py-3 border-2 border-transparent w-full focus:outline-none focus:border-black transition'
+                                type="email"
+                                placeholder='email@example.com'
+                            />
+                        </div>
 
-    if (response.status === 200) {
-      const data = response.data
-      console.log(data.user);
-      setDriver(data.user)
-      
-      localStorage.setItem('token', data.token)
-      navigate('/driver-home')
+                        <div className='mb-6'>
+                            <label className='block text-sm font-medium text-gray-700 mb-1' htmlFor='password'>
+                                Password
+                            </label>
+                            <input
+                                id='password'
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className='bg-gray-100 rounded-lg px-4 py-3 border-2 border-transparent w-full focus:outline-none focus:border-black transition'
+                                type="password"
+                                placeholder='••••••••'
+                            />
+                        </div>
+                        
+                        {error && (
+                            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+                        )}
 
-    }
+                        <button
+                            type='submit'
+                            disabled={loading}
+                            className='bg-black text-white font-semibold rounded-lg w-full h-12 flex items-center justify-center
+                                       hover:bg-gray-800 active:scale-95 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
+                        >
+                            {loading ? <Spinner /> : 'Login'}
+                        </button>
+                    </form>
 
-  }
-  return (
-    <div className='p-7 h-screen flex flex-col justify-between'>
-      <div>
-        <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
+                    <p className='text-center text-sm text-gray-600 mt-6'>
+                        Don't have an account? <Link to='/driver-signup' className='font-medium text-black hover:underline'>Register here</Link>
+                    </p>
+                </div>
+                
+                <div className='mt-8 text-center'>
+                     <Link
+                        to='/login'
+                        className='text-sm text-gray-500 hover:text-black hover:underline transition'
+                    >
+                        Are you a passenger? Sign in here
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-        <form onSubmit={(e) => {
-          submitHandler(e)
-        }}>
-          <h3 className='text-lg font-medium mb-2'>What's your email</h3>
-          <input
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-            }}
-            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
-            type="email"
-            placeholder='email@example.com'
-          />
-
-          <h3 className='text-lg font-medium mb-2'>Enter Password</h3>
-
-          <input
-            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-            }}
-            required type="password"
-            placeholder='password'
-          />
-
-          <button
-            className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-          >Login</button>
-
-        </form>
-        <p className='text-center'>Join a fleet? <Link to='/driver-signup' className='text-blue-600'>Register as a Driver</Link></p>
-      </div>
-      <div>
-        <Link
-          to='/login'
-          className='bg-[#d5622d] flex items-center justify-center text-white font-semibold mb-5 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-        >Sign in as User</Link>
-      </div>
-    </div>
-  )
-}
-
-export default Driverlogin
+export default DriverLogin;

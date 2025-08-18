@@ -1,101 +1,115 @@
-import axios from 'axios'
-import React, { useContext, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { UserDataContext } from '../context/UserContext'
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { UserDataContext } from '../context/UserContext';
+import 'remixicon/fonts/remixicon.css';
+
+const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+);
 
 const UserLogin = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [userData, setUserData] = useState({})
-  const navigate = useNavigate();
-  const {user,setUser} = useContext(UserDataContext);
-  const submitHandler = async(e) => {
-    e.preventDefault()
-    const userData = {
-      email:email,
-      password:password
-    }
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`,userData)
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    
+    const { setUser } = useContext(UserDataContext);
+    const navigate = useNavigate();
 
-    if(response.status==200){
-      const data = response.data;
-      console.log(data);
-      localStorage.setItem('token',data.token)
-      setUser(data.user); // This will now also persist user in localStorage
-      navigate('/home');
-    }
-    setEmail('')
-    setPassword('')
-  }
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
 
-  return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-green-50 to-white px-6 py-12">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex justify-center mb-8">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s"
-            alt="goConnect User Icon"
-            className="w-20 h-20"
-          />
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, { email, password });
+            
+            if (response.status === 200) {
+                const { user, token } = response.data;
+                localStorage.setItem('token', token);
+                setUser(user);
+                navigate('/home');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className='h-screen bg-gray-50 flex flex-col justify-center items-center p-4'>
+            <div className='w-full max-w-md'>
+                <div className='text-center mb-8'>
+                    <i className="ri-user-fill text-5xl text-black"></i>
+                    <h1 className='text-3xl font-bold text-gray-800 mt-2'>Welcome to goConnect</h1>
+                    <p className='text-gray-500'>Log in to continue your journey.</p>
+                </div>
+
+                <div className='bg-white p-8 rounded-2xl shadow-md'>
+                    <form onSubmit={submitHandler}>
+                        <div className='mb-5'>
+                            <label className='block text-sm font-medium text-gray-700 mb-1' htmlFor='email'>
+                                Email Address
+                            </label>
+                            <input
+                                id='email'
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className='bg-gray-100 rounded-lg px-4 py-3 border-2 border-transparent w-full focus:outline-none focus:border-black transition'
+                                type="email"
+                                placeholder='email@example.com'
+                            />
+                        </div>
+
+                        <div className='mb-6'>
+                            <label className='block text-sm font-medium text-gray-700 mb-1' htmlFor='password'>
+                                Password
+                            </label>
+                            <input
+                                id='password'
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className='bg-gray-100 rounded-lg px-4 py-3 border-2 border-transparent w-full focus:outline-none focus:border-black transition'
+                                type="password"
+                                placeholder='••••••••'
+                            />
+                        </div>
+                        
+                        {error && (
+                            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+                        )}
+
+                        <button
+                            type='submit'
+                            disabled={loading}
+                            className='bg-black text-white font-semibold rounded-lg w-full h-12 flex items-center justify-center
+                                       hover:bg-gray-800 active:scale-95 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
+                        >
+                            {loading ? <Spinner /> : 'Login'}
+                        </button>
+                    </form>
+
+                    <p className='text-center text-sm text-gray-600 mt-6'>
+                        New here? <Link to='/signup' className='font-medium text-black hover:underline'>Create an account</Link>
+                    </p>
+                </div>
+                
+                <div className='mt-8 text-center'>
+                     <Link
+                        to='/driver-login'
+                        className='text-sm text-gray-500 hover:text-black hover:underline transition'
+                    >
+                        Are you a driver? Sign in here
+                    </Link>
+                </div>
+            </div>
         </div>
+    );
+};
 
-        <form onSubmit={submitHandler} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">
-              What's your email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@example.com"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-gray-700 font-semibold mb-2">
-              Enter Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="password"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition"
-          >
-            Login
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-gray-600">
-          New here?{' '}
-          <Link to="/signup" className="text-green-600 hover:underline font-medium">
-            Create new Account
-          </Link>
-        </p>
-      </div>
-
-      <div className="w-full max-w-md mt-8">
-        <Link
-          to="/driver-login"
-          className="block text-center bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition"
-        >
-          Sign in as Driver
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-export default UserLogin
+export default UserLogin;
