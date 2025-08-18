@@ -77,3 +77,7 @@ export const logoutUser = async(req,res,next)=>{
     res.clearCookie('token');
     res.status(200).json({message:"Logged Out"});
 }
+
+export const awake = async(req,res)=>{
+    res.status(200).json({message:"Hello, Response from GoConnect"});
+}
